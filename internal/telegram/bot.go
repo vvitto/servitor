@@ -87,27 +87,3 @@ func (s *Service) handleUpdate(ctx context.Context, b *bot.Bot, update *models.U
 			"kind", res.Message.Kind)
 	}
 }
-
-func (s *Service) record(ctx context.Context, update *models.Update) {
-	payload, err := json.Marshal(update)
-	if err != nil {
-		return
-	}
-	if _, err := s.ingester.Handle(ctx, update, payload); err != nil {
-		s.log.Error("ingest command", "err", err, "update_id", update.ID)
-	}
-}
-
-func (s *Service) reply(ctx context.Context, msg *models.Message, text string) {
-	_, err := s.bot.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID: msg.Chat.ID,
-		Text:   text,
-		ReplyParameters: &models.ReplyParameters{
-			MessageID:                msg.ID,
-			AllowSendingWithoutReply: true,
-		},
-	})
-	if err != nil {
-		s.log.Error("send", "err", err, "chat_id", msg.Chat.ID)
-	}
-}
